@@ -30,7 +30,7 @@ const router = express.Router()
 // INDEX
 // GET /examples
 router.get('/countdowns', requireToken, (req, res, next) => {
-  Countdown.find()
+  Countdown.find({ owner: req.user._id })
     .then(countdowns => {
       // `examples` will be an array of Mongoose documents
       // we want to convert each one to a POJO, so we use `.map` to
@@ -47,7 +47,9 @@ router.get('/countdowns', requireToken, (req, res, next) => {
 // GET /examples/5a7db6c74d55bc51bdf39793
 router.get('/countdowns/:id', requireToken, (req, res, next) => {
   // req.params.id will be set based on the `:id` in the route
-  Countdown.findById(req.params.id)
+  const id = req.params.id
+
+  Countdown.find({ owner: req.user._id, _id: id })
     .then(handle404)
     // if `findById` is succesful, respond with 200 and "example" JSON
     .then(countdown => res.status(200).json({ countdown: countdown.toObject() }))
